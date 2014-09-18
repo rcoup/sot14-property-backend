@@ -78,17 +78,22 @@ def main(api_key, debug=0):
             def create_xfers(features):
                 # generator for Transfer objects
                 for feature in features:
+                    if debug >= 2:
+                        print json.dumps(feature, indent=2)
+
                     props = feature['properties']
                     if props['__change__'] == 'DELETE':
                         # ignore DELETEs since title splits/etc will show up as INSERTs too.
                         continue
 
-                    if debug >= 2:
-                        print json.dumps(feature, indent=2)
-
                     action = 'new' if props['__change__'] == 'INSERT' else 'existing'
+
                     # use a point within the title (centroid normally)
+                    if not feature['geometry']:
+                        continue
+
                     location = from_shape(shape(feature['geometry']).representative_point(), srid=4326)
+
                     # create our Transfer object
                     transfer = Transfer(props['title_no'], location, action, week_start)
                     yield transfer
