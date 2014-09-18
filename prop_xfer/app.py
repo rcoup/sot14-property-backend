@@ -19,13 +19,18 @@ Compress(app)
 
 @app.route('/')
 def hello():
-    return 'Hello World!'
+    return 'Try <a href="/week/2012-05-12">12-19 May 2012</a> or <a href="/week/2012-05-12/173.8,-37.4,176.0,-35.6">12-19 May 2012 for Auckland</a>'
 
 
 @app.route('/week/<date>', defaults={'bounds': None})
 @app.route('/week/<date>/<bounds>')
 def week_data(date, bounds):
+    """
+    Query Transfer data for a week, optionally spatially filtered.
+    Returns a GeoJSON FeatureCollection.
+    """
     try:
+        # week should be in ISO YYYY-MM-DD format
         week_start = datetime.datetime.strptime(date, '%Y-%m-%d').date()
     except ValueError as e:
         r = jsonify({"error": str(e)})
@@ -33,6 +38,8 @@ def week_data(date, bounds):
         return r
 
     if bounds:
+        # Optionally, filter the results spatially
+        # west,south,east,north in degrees (latitude/longitude)
         try:
             m = re.match(r'((-?\d+(?:\.\d+)?),){3}(-?\d+(\.\d+)?)$', bounds)
             if not m:
@@ -52,6 +59,7 @@ def week_data(date, bounds):
             r.status_code = 400
             return r
 
+    # Filter the transfers - the DB query happens here
     query = Transfer.query.filter_by(week_start=week_start)
     if bounds:
         query = query.filter(Transfer.location.ST_Intersects(from_shape(bounds, 4326)))
@@ -60,10 +68,12 @@ def week_data(date, bounds):
     for transfer in query:
         features.append(transfer.as_geojson())
 
+    # Format the response as a GeoJSON FeatureCollection
     return jsonify({
         "type": "FeatureCollection",
         "features": features,
     })
+
 
 if __name__ == '__main__':
     app.run(debug=True)

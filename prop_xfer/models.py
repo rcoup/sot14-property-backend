@@ -29,7 +29,7 @@ class Transfer(db.Model):
         return self.week_start + relativedelta(weeks=1)
 
     def as_geojson(self):
-        # return the transfer as a GeoJSON Feature
+        """ Return the transfer as a GeoJSON Feature """
         return {
             "type": "Feature",
             "geometry": mapping(to_shape(self.location)),

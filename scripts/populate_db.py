@@ -1,5 +1,21 @@
 #!/usr/bin/env python
 
+"""
+Pull data down from the LINZ Data Service and populate the Transfers table.
+
+We get data from https://data.linz.govt.nz/layer/804-nz-property-titles/
+and use the WFS Changeset service to request data each week from May 2012.
+
+Deletes all records and re-populates the database from scratch.
+
+You need a LINZ Data Service API Key to give this script.
+
+If you're starting out, you need to:
+* Make sure your database is PostGIS-enabled ('CREATE EXTENSION postgis;')
+* Run app.db.create_all() first to setup the tables
+* Run this.
+"""
+
 import datetime
 import json
 import sys
