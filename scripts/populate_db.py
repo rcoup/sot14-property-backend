@@ -95,14 +95,14 @@ def main(api_key, debug=0):
 
             # Insert all the Transfers in one go
             db.session.add_all((t for t in create_xfers(data['features'])))
-            if debug:
-                break
+            # One transaction per-week
+            db.session.commit()
 
             # loop around again
             query_date_start += relativedelta(weeks=1)
             query_date_end = query_date_start + relativedelta(weeks=1)
-
-        db.session.commit()
+            if debug:
+                break
 
         # Drama to run VACUUM ANALYZE
         conn = db.engine.connect()
