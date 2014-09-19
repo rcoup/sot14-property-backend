@@ -18,11 +18,8 @@ specified by `west,south,east,north` (longitudes/latitudes in decimal degreees).
 
 ## Developing
 
-Usual git clone, virtualenv, requirements.txt, db-creation (Postgresql).
-
-If you're starting out, you need to:
-* Set `DATABASE_URL` in your environment
-* Make sure your database is PostGIS-enabled (`CREATE EXTENSION postgis;`)
-* Run `prop_xfer.app.app.db.create_all()` first to setup the tables
-* Run `scripts/populate_db.py` to populate the DB
-* Run `prop_xfer/app.py` to run the web service
+* Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) and [Vagrant](https://www.vagrantup.com/downloads.html)
+* `git clone` this repository.
+* `vagrant up` to build a dev environment
+* `vagrant ssh` then `python prop_xfer/app.py` to run the backend.
+* Head to http://localhost:5000/
