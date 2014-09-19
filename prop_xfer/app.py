@@ -2,15 +2,14 @@ import datetime
 import os
 import re
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask.ext.compress import Compress
 from geoalchemy2.shape import from_shape
 from shapely.geometry import box, MultiPolygon
 
 from prop_xfer.models import db, Transfer
 
-
-app = Flask("prop_xfer")
+app = Flask("prop_xfer", static_url_path='')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db.init_app(app)
 Compress(app)
@@ -73,6 +72,10 @@ def week_data(date, bounds):
         "type": "FeatureCollection",
         "features": features,
     })
+
+@app.route('/static/<path:path>')
+def static_proxy(path):
+    return app.send_static_file(path)
 
 
 if __name__ == '__main__':
