@@ -18,7 +18,7 @@ If you're starting out, you need to:
 
 import datetime
 import json
-import re
+import os
 import sys
 
 import dateutil.parser
@@ -34,37 +34,40 @@ from prop_xfer.models import Transfer
 
 
 BASE_LAYER_URL = "https://data.linz.govt.nz/services/wfs/layer-804-changeset?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&typeNames=layer-804-changeset&viewparams=from:%s;to:%s&outputFormat=application/json&exceptions=application/json&srsName=EPSG:4326"
-START_DATE = "2012-05-17T00:00:00Z"
+START_DATE = os.environ.get("PX_START", "2012-05-17T00:00:00Z")  #Thursday
+DEBUG = int(os.environ.get("PX_DEBUG", "0"))
 
-def main(api_key, debug=0):
+
+def main(api_key):
     req_headers = {
         'Authorization': "key %s" % sys.argv[1],
     }
 
     with app.app_context():
-        # nuke any existing data
-        Transfer.query.delete()
-
         # Weeks are Saturday to Saturday
         # Queries are Thursday to Thursday
         date_end = datetime.datetime.now(tzutc())
         query_date_start = dateutil.parser.parse(START_DATE)
         query_date_end = query_date_start + relativedelta(weeks=1)
 
+        # nuke any existing data
+        week_start = query_date_start + relativedelta(weekday=SA(-1))
+        Transfer.query.filter(Transfer.week_date >= week_start).delete()
+
         while query_date_end < date_end:
             week_start = query_date_start + relativedelta(weekday=SA(-1))
             week_end = query_date_start + relativedelta(weekday=SA(+1))
 
-            if debug:
+            if DEBUG:
                 print "Query", query_date_start, query_date_end, "week", week_start, week_end
 
             # Construct the LDS changeset url for the week
             url = BASE_LAYER_URL % (query_date_start.isoformat("T").replace("+00:00", "Z"), query_date_end.isoformat("T").replace("+00:00", "Z"))
-            if debug >= 2:
+            if DEBUG >= 2:
                 print url
 
             r = requests.get(url, headers=req_headers)
-            if debug >= 4:
+            if DEBUG >= 4:
                 print r.status
                 print r.text
 
@@ -72,13 +75,13 @@ def main(api_key, debug=0):
 
             data = r.json()
             print "%s -> %s: %d records" % (week_start.date(), week_end.date(), len(data['features']))
-            if debug >= 3:
+            if DEBUG >= 3:
                 print json.dumps(data, indent=2)
 
             def create_xfers(features):
                 # generator for Transfer objects
                 for feature in features:
-                    if debug >= 2:
+                    if DEBUG >= 2:
                         print json.dumps(feature, indent=2)
 
                     props = feature['properties']
@@ -106,7 +109,7 @@ def main(api_key, debug=0):
             # loop around again
             query_date_start += relativedelta(weeks=1)
             query_date_end = query_date_start + relativedelta(weeks=1)
-            if debug:
+            if DEBUG:
                 break
 
         # Drama to run VACUUM ANALYZE
@@ -117,11 +120,7 @@ def main(api_key, debug=0):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print >>sys.stderr, "Usage: %s APIKEY [--debug]"
+        print >>sys.stderr, "Usage: %s APIKEY\n\nSet PX_START_DATE=YYYY-MM-DD or PX_DEBUG=n if you want"
         sys.exit(2)
 
-    debug = 0
-    if len(sys.argv) == 3:
-        debug = int(re.match(r'--debug=(\d+)', sys.argv[2]).group(1))
-
-    main(sys.argv[1], debug=debug)
+    main(sys.argv[1])
