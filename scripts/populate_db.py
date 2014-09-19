@@ -52,7 +52,8 @@ def main(api_key):
 
         # nuke any existing data
         week_start = query_date_start + relativedelta(weekday=SA(-1))
-        Transfer.query.filter(Transfer.week_date >= week_start).delete()
+        print Transfer
+        Transfer.query.filter(Transfer.week_start >= week_start).delete()
 
         while query_date_end < date_end:
             week_start = query_date_start + relativedelta(weekday=SA(-1))
