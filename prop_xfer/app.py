@@ -19,7 +19,7 @@ Compress(app)
 
 @app.route('/')
 def hello():
-    return 'Try <a href="/week/2012-05-12">12-19 May 2012</a> or <a href="/week/2012-05-12/173.8,-37.4,176.0,-35.6">12-19 May 2012 for Auckland</a>'
+    return 'Try <a href="/week/2013-01-05">5-12 Jan 2013</a> or <a href="/week/2013-01-05/173.8,-37.4,176.0,-35.6">5-12 Jan 2013 for Auckland</a>'
 
 
 @app.route('/week/<date>', defaults={'bounds': None})
