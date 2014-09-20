@@ -12,14 +12,18 @@ class Transfer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title_no = db.Column(db.String(100))
     location = db.Column(Geometry('POINT', srid=4326))
-    action = db.Column(db.String(10))  # new or existing
+    action = db.Column(db.String(10), index=True)  # new or existing
+    owners = db.Column(db.Text())
+    owner_type = db.Column(db.String(10), index=True)
     week_start = db.Column(db.Date(), index=True)
 
-    def __init__(self, title_no, location, action, week_start):
+    def __init__(self, title_no, location, action, week_start, owners, owner_type):
         self.title_no = title_no
         self.location = location
         self.action = action
         self.week_start = week_start
+        self.owners = owners
+        self.owner_type = owner_type
 
     def __repr__(self):
         return '<Transfer %d:%s>' % (self.id, self.title_no)
@@ -35,5 +39,6 @@ class Transfer(db.Model):
             "geometry": mapping(to_shape(self.location)),
             "properties": {
                 "action": self.action,
+                "owner_type": self.owner_type,
             }
         }
