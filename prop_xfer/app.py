@@ -17,9 +17,11 @@ Compress(app)
 
 
 @app.route('/')
-def hello():
-    return 'Try <a href="/week/2013-08-03">5-12 Jan 2013</a> or <a href="/week/2013-08-03/173.8,-37.4,176.0,-35.6">5-12 Jan 2013 for Auckland</a>' \
-           + '<hr>Or stats <a href="/stats/2013-08-03">5-12 Jan 2013</a> or <a href="/stats/2013-08-03/173.8,-37.4,176.0,-35.6">5-12 Jan 2013 for Auckland</a>'
+def home():
+#    return 'Try <a href="/week/2013-08-03">5-12 Jan 2013</a> or <a href="/week/2013-08-
+#         + '<hr>Or stats <a href="/stats/2013-08-03">5-12 Jan 2013</a> or <a href="/s
+
+    return app.send_static_file("index.html")
 
 @app.route('/stats/<date>', defaults={'bounds': None})
 @app.route('/stats/<date>/<bounds>')
