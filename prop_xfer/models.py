@@ -40,5 +40,6 @@ class Transfer(db.Model):
             "properties": {
                 "action": self.action,
                 "owner_type": self.owner_type,
+                "title_no": self.title_no
             }
         }
