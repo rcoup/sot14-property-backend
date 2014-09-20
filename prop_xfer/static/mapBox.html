@@ -182,11 +182,15 @@ function setBrush(data) {
     }
 }
 
+//start button functionality
 function start(){
+    //changes button text and loop appropriately
     if ($('start').innerHTML=='Start'){
         $('start').innerHTML='Stop';
+        //starts the loop, stores ID of the loop
         intervalID = window.setInterval(loop, 1000);
     }else{
+        //kills the loop using ID made at start of loop.
         $('start').innerHTML='Start'
         window.clearInterval(intervalID);
     }
@@ -194,8 +198,10 @@ function start(){
 
 function loop(){
     var filtered = dadata.features.filter(function (feature){
+        //Currently random selection. Need to implement progressing through each week of data.
         return Math.random() < 0.5;
     });
+    //clear all points and replaces them with 'filtered' new points.
     propertiesLayer.clearLayers()
         .addData(filtered);
 
