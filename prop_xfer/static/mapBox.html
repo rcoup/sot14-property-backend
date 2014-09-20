@@ -9,18 +9,19 @@
 </style>
 </head>
 <body>
-	script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js' charset="utf-8"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js' charset="utf-8"></script>
 <style>
 .ui-brush {
-  background:#f8f8f8;
   position:absolute;
   bottom:0;right:0;left:0;
-  height:100px;
   }
 .brush .extent {
   stroke:#fff;
   fill-opacity:0.125;
   shape-rendering:crispEdges;
+  }
+  #brush > svg > g{
+    fill:red;
   }
 </style>
 
@@ -32,10 +33,11 @@
 <script>
 $ = L.DomUtil.get;
 
-L.mapbox.accessToken = 'pk.eyJ1IjoibmllbWFuZCIsImEiOiJkNGkzYVVnIn0.vZ0zFafS2OlYr7HannoU9w';
-var map = L.mapbox.map('map', 'niemand.ji2nn362', {
+// https://a.tiles.mapbox.com/v4/niemand.jhooj7nk/page.html?access_token=/-36.9060/174.8035
+L.mapbox.accessToken = 'pk.eyJ1IjoibmllbWFuZCIsImEiOiJkNGkzYVVnIn0.vZ0zFafS2OlYr7HannoU9w#14';
+var map = L.mapbox.map('map', 'niemand.jhooj7nk', {
         attributionControl: false,
-        infoControl: true
+        infoControl: false
     })
     .setView([-36.8404, 174.7399], 10);
 
@@ -131,7 +133,7 @@ var svg = d3.select(map.getPanes().overlayPane).append("svg"),
         
 //ensures that svg lines up with the current map view (allows for resizes and panning etc)
   map.on("viewreset", reset);
-  //reset();
+  reset();
 
   // Reposition the SVG to cover the features.
   function reset() {
@@ -144,11 +146,7 @@ var svg = d3.select(map.getPanes().overlayPane).append("svg"),
         .style("left", topLeft[0] + "px")
         .style("top", topLeft[1] + "px");
 
-    g   .attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
-
-    feature = g.selectAll("path")
-    feature.attr("d", path);
-
+    g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
   }
 
   // Use Leaflet to implement a D3 geometric transformation.
@@ -229,7 +227,7 @@ function start(){
     if ($('start').innerHTML=='Start'){
         $('start').innerHTML='Stop';
         //starts the loop, stores ID of the loop
-        intervalID = window.setInterval(loop, 1000);
+        intervalID = window.setInterval(loop, 2222);
     }else{
         //kills the loop using ID made at start of loop.
         $('start').innerHTML='Start'
@@ -240,23 +238,36 @@ function start(){
 function loop(){
     var filtered = dadata.features.filter(function (feature){
         //Currently random selection. Need to implement progressing through each week of data.
-        return Math.random() < 0.5;
+        return Math.random() < 0.1;
     });
 
     //adds d3 items to the leaflet map (from the data source dadata)
+    var index = 0;
     var feature = g.selectAll("path")
-        .data(filtered);
+        .data(filtered, function(f){
+            return index++;
+        });
     
     feature.enter()
-        .append("path");
+        .append("path")
+        .style("opacity", 1)
+        .attr("d", path);
+
     feature.exit()
         .transition()
+        .duration(2000) // this is 1s
         .style("opacity", 0)
-        .duration(1000) // this is 1s
-     //   .remove();
-reset();
+        .remove();
+
+    reset();
+    
+    //feature = g.selectAll("path")
+
 
 }
+propertiesLayer.addData(dadata);
+// setBrush(dadata);
 </script>
+<script type="text/javascript" src="js/selectore.js"></script>
 </body>
 </html>
