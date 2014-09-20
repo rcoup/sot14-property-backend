@@ -20,6 +20,7 @@ import datetime
 import json
 import os
 import sys
+import re
 
 import dateutil.parser
 from dateutil.relativedelta import relativedelta, SA
@@ -33,8 +34,8 @@ from prop_xfer.app import app, db
 from prop_xfer.models import Transfer
 
 
-BASE_LAYER_URL = "https://data.linz.govt.nz/services/wfs/layer-804-changeset?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&typeNames=layer-804-changeset&viewparams=from:%s;to:%s&outputFormat=application/json&exceptions=application/json&srsName=EPSG:4326"
-START_DATE = os.environ.get("PX_START", "2012-05-17T00:00:00Z")  #Thursday
+BASE_LAYER_URL = "https://data.linz.govt.nz/services/wfs/layer-805-changeset?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&typeNames=layer-805-changeset&viewparams=from:%s;to:%s&outputFormat=application/json&exceptions=application/json&srsName=EPSG:4326"
+START_DATE = os.environ.get("PX_START", "2013-05-17T00:00:00Z")  #Thursday
 DEBUG = int(os.environ.get("PX_DEBUG", "0"))
 
 
@@ -52,7 +53,8 @@ def main(api_key):
 
         # nuke any existing data
         week_start = query_date_start + relativedelta(weekday=SA(-1))
-        Transfer.query.filter(Transfer.week_date >= week_start).delete()
+        print Transfer
+        Transfer.query.filter(Transfer.week_start >= week_start).delete()
 
         while query_date_end < date_end:
             week_start = query_date_start + relativedelta(weekday=SA(-1))
@@ -63,6 +65,7 @@ def main(api_key):
 
             # Construct the LDS changeset url for the week
             url = BASE_LAYER_URL % (query_date_start.isoformat("T").replace("+00:00", "Z"), query_date_end.isoformat("T").replace("+00:00", "Z"))
+            print url
             if DEBUG >= 2:
                 print url
 
@@ -96,9 +99,22 @@ def main(api_key):
                         continue
 
                     location = from_shape(shape(feature['geometry']).representative_point(), srid=4326)
+                    owners = props['owners']
+                    #DEV SECTION#
+                    owner_type = ''
+                    if bool(re.search(r"\bHer Majesty The Queen\b", props['owners'], re.I)) \
+                            or bool(re.search(r"\bCouncil\b", props['owners'], re.I)):  
+                        owner_type = 'govt'
+
+                    elif bool(re.search(r"\bLimited\b", props['owners'], re.I)) \
+                            or bool(re.search(r"\bIncorporated\b", props['owners'], re.I)):
+                        owner_type = 'company'
+                    else:
+                        owner_type = 'private'
+
 
                     # create our Transfer object
-                    transfer = Transfer(props['title_no'], location, action, week_start)
+                    transfer = Transfer(props['title_no'], location, action, week_start, owners, owner_type)
                     yield transfer
 
             # Insert all the Transfers in one go
