@@ -26,7 +26,6 @@ body { margin:0; padding:0; }
     </style>
 
     <div id='map' class='dark'></div>
-    <button id='start' onclick="start()">Start</button>
     <div id='brush' class='ui-brush'></div>
 
     <script type="text/javascript" src="data.js"></script>
@@ -182,20 +181,6 @@ function setBrush(data) {
     }
 }
 
-//start button functionality
-function start(){
-    //changes button text and loop appropriately
-    if ($('start').innerHTML=='Start'){
-        $('start').innerHTML='Stop';
-        //starts the loop, stores ID of the loop
-        intervalID = window.setInterval(loop, 2222);
-    }else{
-        //kills the loop using ID made at start of loop.
-        $('start').innerHTML='Start'
-        window.clearInterval(intervalID);
-    }
-}
-
 function loop(){
     getNewData(function (data) {
             //setBrush(data.features);
@@ -221,6 +206,7 @@ function loop(){
 
             });
 }
+window.setInterval(loop, 3000);
 
 </script>
 <!--script type="text/javascript" src="js/selectore.js"></script-->
