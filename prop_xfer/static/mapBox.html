@@ -73,9 +73,48 @@ function scaledPoint(feature, latlng) {
 //     propertiesLayer.addData(data);
 //     setBrush(data);
 // });
-propertiesLayer.addData(dadata);
-setBrush(dadata);
-var json = JSON.parse(dadata);
+//propertiesLayer.addData(dadata);
+//setBrush(dadata);
+//var json = JSON.parse(dadata);
+
+//create a svg var that acts as a link between leaflet and d3
+var svg = d3.select(map.getPanes().overlayPane).append("svg"),
+    g = svg.append("g").attr("class", "leaflet-zoom-hide");
+
+//ensure that the d3 items map to the correct map locations
+  var transform = d3.geo.transform({point: projectPoint}),
+      path = d3.geo.path().projection(transform);
+
+//adds d3 items to the leaflet map (from the data source dadata)
+  var feature = g.selectAll("path")
+      .data(dadata.features)
+    .enter().append("path");
+    
+//ensures that svg lines up with the current map view (allows for resizes and panning etc)
+  map.on("viewreset", reset);
+  reset();
+
+  // Reposition the SVG to cover the features.
+  function reset() {
+    var bounds = path.bounds(dadata),
+        topLeft = bounds[0],
+        bottomRight = bounds[1];
+
+    svg .attr("width", bottomRight[0] - topLeft[0])
+        .attr("height", bottomRight[1] - topLeft[1])
+        .style("left", topLeft[0] + "px")
+        .style("top", topLeft[1] + "px");
+
+    g   .attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+
+    feature.attr("d", path);
+  }
+
+  // Use Leaflet to implement a D3 geometric transformation.
+  function projectPoint(x, y) {
+    var point = map.latLngToLayerPoint(new L.LatLng(y, x));
+    this.stream.point(point.x, point.y);
+  }
 
 function setBrush(data) {
     var container = d3.select('#brush'),
