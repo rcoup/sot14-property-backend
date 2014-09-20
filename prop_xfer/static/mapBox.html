@@ -9,18 +9,19 @@
 </style>
 </head>
 <body>
-    script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js' charset="utf-8"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js' charset="utf-8"></script>
 <style>
 .ui-brush {
-  background:#f8f8f8;
   position:absolute;
   bottom:0;right:0;left:0;
-  height:100px;
   }
 .brush .extent {
   stroke:#fff;
   fill-opacity:0.125;
   shape-rendering:crispEdges;
+  }
+  #brush > svg > g{
+    fill:red;
   }
 </style>
 
@@ -32,10 +33,11 @@
 <script>
 $ = L.DomUtil.get;
 
-L.mapbox.accessToken = 'pk.eyJ1IjoibmllbWFuZCIsImEiOiJkNGkzYVVnIn0.vZ0zFafS2OlYr7HannoU9w';
-var map = L.mapbox.map('map', 'niemand.ji2nn362', {
+// https://a.tiles.mapbox.com/v4/niemand.jhooj7nk/page.html?access_token=/-36.9060/174.8035
+L.mapbox.accessToken = 'pk.eyJ1IjoibmllbWFuZCIsImEiOiJkNGkzYVVnIn0.vZ0zFafS2OlYr7HannoU9w#14';
+var map = L.mapbox.map('map', 'niemand.jhooj7nk', {
         attributionControl: false,
-        infoControl: true
+        infoControl: false
     })
     .setView([-36.8404, 174.7399], 10);
 
@@ -219,6 +221,9 @@ function loop(){
 
 
 }
+propertiesLayer.addData(dadata);
+// setBrush(dadata);
 </script>
+<script type="text/javascript" src="js/selectore.js"></script>
 </body>
 </html>
