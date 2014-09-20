@@ -38,7 +38,7 @@ body { margin:0; padding:0; }
         attributionControl: false,
         infoControl: false
     })
-    .setView([-36.8404, 174.7399], 10);
+    .setView([-36.8404, 174.7399], 14);
 
     var getJSON = function(url, callback) {
         var xhr = new XMLHttpRequest();
@@ -64,7 +64,7 @@ var index = 0;
 
 function getNewData(callback) {
 
-    var date = dateArray[index]; // *** NEEDS TO BE CHANGED *** - change index when you loop
+    var date = dateArray[index%dateArray.length]; // *** NEEDS TO BE CHANGED *** - change index when you loop
     var dateString = date.toISOString().slice(0,10);
 
     var url = 'http://localhost:5000/week/' + dateString + '/173.8,-37.4,176.0,-35.6';

@@ -114,7 +114,7 @@ def week_data(date, bounds):
     query = Transfer.query.filter_by(week_start=week_start)
     if bounds:
         query = query.filter(Transfer.location.ST_Intersects(from_shape(bounds, 4326)))
-
+	query = query.limit(2000)
     features = []
     for transfer in query:
         features.append(transfer.as_geojson())
