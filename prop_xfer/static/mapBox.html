@@ -77,28 +77,43 @@ var getJSON = function(url, callback) {
     };
     xhr.send();
 };
-var dodata = getJSON('http://localhost:5000/week/2012-12-29', function(data) {
+
+// Dates
+//var startDate = new Date(2012, 12, 29);
+//var stopDate = new Date(2013, 12, 1);
+var startDate = new Date('2012-12-29');
+var stopDate = new Date('2013-12-1');
+console.log(startDate);
+var dateArray = getDates(startDate, stopDate);
+
+var date = dateArray[0];
+var dateString = formatDate(date);
+
+var dodata = getJSON('http://localhost:5000/week/' + dateString + '/173.8,-37.4,176.0,-35.6', function(data) {
     console.log(data);
     propertiesLayer.addData(data);
     setBrush(data);
 });
 
-// Dates
-var startDate = new Date(2012, 12, 29);
-var stopDate = new Date(2013, 12, 1);
-var dateArray = getDates(startDate, stopDate);
-console.log(dateArray[5]);
 
 // Returns an array of dates a week apart, starting at the specified stop date and 
 // ending at the specified end date
 function getDates(startDate, stopDate) {
     var dateArray = new Array();
-    var currentDate = startDate;
-    while (currentDate <= stopDate) {
-        dateArray.push(new Date(currentDate));
-        currentDate = currentDate.setDate(currentDate.getDate() + 7);
+    for (startDate; startDate <= stopDate; startDate.setDate(startDate.getDate() + 7)) {
+        dateArray.push(new Date(startDate));
     }
     return dateArray;
+}
+
+// Formats the date into the format required for URLs
+function formatDate(date) {
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var dateString = year + "-" + month + "-" + day;
+    console.log(dateString);
+    return dateString;
 }
 
 function setBrush(data) { 
