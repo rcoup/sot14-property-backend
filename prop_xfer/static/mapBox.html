@@ -4,6 +4,7 @@
 <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.0/mapbox.css' rel='stylesheet' />
 <style>
   body { margin:0; padding:0; }
+  #start { position:absolute; top:0; right:0; }
   #map { position:absolute; top:0; bottom:0; width:100%; }
 </style>
 </head>
@@ -24,10 +25,13 @@
 </style>
 
 <div id='map' class='dark'></div>
+<button id='start' onclick="start()">Start</button>
 <div id='brush' class='ui-brush'></div>
 
 <script type="text/javascript" src="data.js"></script>
 <script>
+$ = L.DomUtil.get;
+
 L.mapbox.accessToken = 'pk.eyJ1IjoibmllbWFuZCIsImEiOiJkNGkzYVVnIn0.vZ0zFafS2OlYr7HannoU9w';
 var map = L.mapbox.map('map', 'niemand.ji2nn362', {
         attributionControl: false,
@@ -57,6 +61,7 @@ function scaledPoint(feature, latlng) {
         weight: 0.5,
         color: '#fff'
     });
+    ////This breaks our code now!, does pop ups in original.
     // .bindPopup(
     //     '<h2>' + feature.properties.place + '</h2>' +
     //     '<h3>' + new Date(feature.properties.time) + '</h3>' +
@@ -133,9 +138,25 @@ function setBrush(data) {
             };
         }
         var filtered = data.features.filter(filter);
-        earthquakesLayer.clearLayers()
+        propertiesLayer.clearLayers()
             .addData(filtered);
     }
+}
+
+function start(){
+    $('start').innerHTML='Stop'
+    window.setTimeout(loop, 1000);
+}
+
+function loop(){
+        var filtered = dadata.features.filter(function (feature){
+            return Math.random() < 0.5;
+        });
+        propertiesLayer.clearLayers()
+            .addData(filtered);
+
+        window.setTimeout(loop, 1000);
+
 }
 </script>
 </body>
