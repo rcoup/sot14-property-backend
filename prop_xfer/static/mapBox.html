@@ -11,18 +11,18 @@
 <body>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js' charset="utf-8"></script>
 <style>
-.ui-brush {
-  position:absolute;
-  bottom:0;right:0;left:0;
-  }
-.brush .extent {
-  stroke:#fff;
-  fill-opacity:0.125;
-  shape-rendering:crispEdges;
-  }
-  #brush > svg > g{
-    fill:red;
-  }
+    .ui-brush {
+        position:absolute;
+        bottom:0;right:0;left:0;
+    }
+    .brush .extent {
+        stroke:#fff;
+        fill-opacity:0.125;
+        shape-rendering:crispEdges;
+    }
+    #brush > svg > g{
+        fill:red;
+    }
 </style>
 
 <div id='map' class='dark'></div>
@@ -33,9 +33,8 @@
 <script>
 $ = L.DomUtil.get;
 
-// https://a.tiles.mapbox.com/v4/niemand.jhooj7nk/page.html?access_token=/-36.9060/174.8035
-L.mapbox.accessToken = 'pk.eyJ1IjoibmllbWFuZCIsImEiOiJkNGkzYVVnIn0.vZ0zFafS2OlYr7HannoU9w#14';
-var map = L.mapbox.map('map', 'niemand.jhooj7nk', {
+L.mapbox.accessToken = 'pk.eyJ1IjoibmllbWFuZCIsImEiOiJkNGkzYVVnIn0.vZ0zFafS2OlYr7HannoU9w#11';
+var map = L.mapbox.map('map', 'niemand.ji4p4h52', {
         attributionControl: false,
         infoControl: false
     })
