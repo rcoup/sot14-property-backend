@@ -144,18 +144,21 @@ function setBrush(data) {
 }
 
 function start(){
-    $('start').innerHTML='Stop'
-    window.setTimeout(loop, 1000);
+    if ($('start').innerHTML=='Start'){
+        $('start').innerHTML='Stop';
+        intervalID = window.setInterval(loop, 1000);
+    }else{
+        $('start').innerHTML='Start'
+        window.clearInterval(intervalID);
+    }
 }
 
 function loop(){
-        var filtered = dadata.features.filter(function (feature){
-            return Math.random() < 0.5;
-        });
-        propertiesLayer.clearLayers()
-            .addData(filtered);
-
-        window.setTimeout(loop, 1000);
+    var filtered = dadata.features.filter(function (feature){
+        return Math.random() < 0.5;
+    });
+    propertiesLayer.clearLayers()
+        .addData(filtered);
 
 }
 </script>
