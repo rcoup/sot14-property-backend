@@ -8,7 +8,7 @@
 </style>
 </head>
 <body>
-    script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js' charset="utf-8"></script>
+	script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js' charset="utf-8"></script>
 <style>
 .ui-brush {
   background:#f8f8f8;
@@ -41,7 +41,7 @@ var propertiesLayer = L.geoJson(null, { pointToLayer: scaledPoint })
     .addTo(map);
 
 function pointColor(feature) {
-    return feature.properties.action == "new" ? '#f55' : '#a00';
+    return feature.properties.action == "new" ? '#f55' : '#999';
 }
 
 // Might want to have some more informative way to set radius
@@ -63,16 +63,27 @@ function scaledPoint(feature, latlng) {
     //     feature.properties.mag + ' magnitude');
 }
 
-// Request our data and add it to the earthquakesLayer.
-// d3.json('test.json', function(err, data) {
-//     propertiesLayer.addData(data);
-//     setBrush(data);
-// });
-propertiesLayer.addData(dadata);
-setBrush(dadata);
-var json = JSON.parse(dadata);
+var getJSON = function(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('get', url, true);
+    xhr.responseType = 'json';
+    xhr.onload = function() {
+      var status = xhr.status; 
+      if (status == 200) { // Success
+            callback(xhr.response);
+      } else {
+        throw new Error('ERROR!');
+      }
+    };
+    xhr.send();
+};
+var dodata = getJSON('http://localhost:5000/week/2012-12-29', function(data) {
+    console.log(data);
+    propertiesLayer.addData(data);
+    setBrush(data);
+});
 
-function setBrush(data) {
+function setBrush(data) { 
     var container = d3.select('#brush'),
         width = container.node().offsetWidth,
         margin = {top: 0, right: 0, bottom: 0, left: 0},
