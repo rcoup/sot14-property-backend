@@ -30,14 +30,14 @@ import psycopg2.extensions
 import requests
 from shapely.geometry import shape
 
-from prop_xfer.app import app, db
+from prop_xfer.app import app, db, clear_cache
 from prop_xfer.models import Transfer
+
 
 
 BASE_LAYER_URL = "https://data.linz.govt.nz/services/wfs/layer-805-changeset?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&typeNames=layer-805-changeset&viewparams=from:%s;to:%s&outputFormat=application/json&exceptions=application/json&srsName=EPSG:4326"
 START_DATE = os.environ.get("PX_START", "2013-05-17T00:00:00Z")  #Thursday
 DEBUG = int(os.environ.get("PX_DEBUG", "0"))
-
 
 def main(api_key):
     req_headers = {
@@ -47,6 +47,7 @@ def main(api_key):
     with app.app_context():
         # Weeks are Saturday to Saturday
         # Queries are Thursday to Thursday
+        clear_cache()
         date_end = datetime.datetime.now(tzutc())
         query_date_start = dateutil.parser.parse(START_DATE)
         query_date_end = query_date_start + relativedelta(weeks=1)

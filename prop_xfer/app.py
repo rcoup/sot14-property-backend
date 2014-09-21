@@ -6,7 +6,6 @@ from flask import Flask, jsonify, send_from_directory
 from flask.ext.compress import Compress
 from geoalchemy2.shape import from_shape
 from shapely.geometry import box, MultiPolygon
-import time #DEBUG
 from prop_xfer.models import db, Transfer
 
 app = Flask("prop_xfer", static_url_path='')
@@ -15,9 +14,21 @@ db.init_app(app)
 Compress(app)
 cache_folder = os.path.dirname(os.path.realpath(__file__)) + '/cache'
 
+#Creates cache directory
 if not os.path.exists(cache_folder):
     print 'Creating cache directory...'
     os.makedirs(cache_folder)
+
+def clear_cache():
+    folder = cache_folder
+    for the_file in os.listdir(folder):
+        file_path = os.path.join(folder, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception, e:
+            print e
+
 
 @app.route('/')
 def home():
