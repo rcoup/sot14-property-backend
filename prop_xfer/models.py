@@ -32,6 +32,8 @@ class Transfer(db.Model):
     def week_end(self):
         return self.week_start + relativedelta(weeks=1)
 
+    def return_date(self):
+        return str(self.week_start)
     def as_geojson(self):
         """ Return the transfer as a GeoJSON Feature """
         return {

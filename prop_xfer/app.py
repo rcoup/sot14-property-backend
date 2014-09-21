@@ -32,10 +32,27 @@ def clear_cache():
 
 @app.route('/')
 def home():
-#    return 'Try <a href="/week/2013-08-03">5-12 Jan 2013</a> or <a href="/week/2013-08-
-#         + '<hr>Or stats <a href="/stats/2013-08-03">5-12 Jan 2013</a> or <a href="/s
-
     return app.send_static_file("index.html")
+
+
+@app.route('/stats/', defaults={'bounds': None})
+@app.route('/stats/<bounds>')
+def stats(bounds):
+    cache_location = cache_folder + '/' + hashlib.md5('stats/' + str(bounds)).hexdigest() + '.json.cache'
+    if os.path.isfile(cache_location):
+        with open(cache_location) as r:
+            data = jsonify(json.loads(r.read()))
+            return data
+    else:
+        dates = {}
+        query = Transfer.query.distinct(Transfer.week_start)
+        for date in query:
+            dates.update({str(date.return_date()) : Transfer.query.filter_by(week_start=date.return_date()).count()})
+            
+        with open(cache_location, 'w') as w:
+            w.write(json.dumps(dates))
+        return jsonify(dates)
+       
 
 @app.route('/week/<date>', defaults={'bounds': None})
 @app.route('/week/<date>/<bounds>')
