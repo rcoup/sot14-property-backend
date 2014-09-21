@@ -26,7 +26,6 @@ body { margin:0; padding:0; }
     </style>
 
     <div id='map' class='dark'></div>
-    <button id='start' onclick="start()">Start</button>
     <div id='brush' class='ui-brush'></div>
 
     <script type="text/javascript" src="data.js"></script>
@@ -38,7 +37,7 @@ body { margin:0; padding:0; }
         attributionControl: false,
         infoControl: false
     })
-    .setView([-36.8404, 174.7399], 10);
+    .setView([-36.8404, 174.7399], 14);
 
     var getJSON = function(url, callback) {
         var xhr = new XMLHttpRequest();
@@ -64,10 +63,10 @@ var index = 0;
 
 function getNewData(callback) {
 
-    var date = dateArray[index]; // *** NEEDS TO BE CHANGED *** - change index when you loop
+    var date = dateArray[index%dateArray.length]; // *** NEEDS TO BE CHANGED *** - change index when you loop
     var dateString = date.toISOString().slice(0,10);
 
-    var url = 'http://localhost:5000/week/' + dateString + '/173.8,-37.4,176.0,-35.6';
+    var url = '/week/' + dateString + '/173.8,-37.4,176.0,-35.6';
     console.log(url);
     var dodata = getJSON(url, callback);
 
@@ -182,20 +181,6 @@ function setBrush(data) {
     }
 }
 
-//start button functionality
-function start(){
-    //changes button text and loop appropriately
-    if ($('start').innerHTML=='Start'){
-        $('start').innerHTML='Stop';
-        //starts the loop, stores ID of the loop
-        intervalID = window.setInterval(loop, 2222);
-    }else{
-        //kills the loop using ID made at start of loop.
-        $('start').innerHTML='Start'
-        window.clearInterval(intervalID);
-    }
-}
-
 function loop(){
     getNewData(function (data) {
             //setBrush(data.features);
@@ -208,6 +193,7 @@ function loop(){
             feature.enter()
             .append("path")
             .style("opacity", 1)
+            .attr("fill", '#f55')
             .attr("d", path);
 
             feature.exit()
@@ -220,6 +206,7 @@ function loop(){
 
             });
 }
+window.setInterval(loop, 3000);
 
 </script>
 <!--script type="text/javascript" src="js/selectore.js"></script-->

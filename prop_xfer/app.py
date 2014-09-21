@@ -13,16 +13,18 @@ app = Flask("prop_xfer", static_url_path='')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db.init_app(app)
 Compress(app)
-cache_folder = 'cache'
+cache_folder = os.path.dirname(os.path.realpath(__file__)) + '/cache'
 
 if not os.path.exists(cache_folder):
     print 'Creating cache directory...'
     os.makedirs(cache_folder)
 
 @app.route('/')
-def hello():
-    return 'Try <a href="/week/2013-08-03">5-12 Jan 2013</a> or <a href="/week/2013-08-03/173.8,-37.4,176.0,-35.6">5-12 Jan 2013 for Auckland</a>' \
-           + '<hr>Or stats <a href="/stats/2013-08-03">5-12 Jan 2013</a> or <a href="/stats/2013-08-03/173.8,-37.4,176.0,-35.6">5-12 Jan 2013 for Auckland</a>'
+def home():
+#    return 'Try <a href="/week/2013-08-03">5-12 Jan 2013</a> or <a href="/week/2013-08-
+#         + '<hr>Or stats <a href="/stats/2013-08-03">5-12 Jan 2013</a> or <a href="/s
+
+    return app.send_static_file("index.html")
 
 @app.route('/week/<date>', defaults={'bounds': None})
 @app.route('/week/<date>/<bounds>')
@@ -72,6 +74,8 @@ def week_data(date, bounds):
         query = Transfer.query.filter_by(week_start=week_start)
         if bounds:
             query = query.filter(Transfer.location.ST_Intersects(from_shape(bounds, 4326)))
+
+        query = query.limit(2000)
 
         features = []
         for transfer in query:
