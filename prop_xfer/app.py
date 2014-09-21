@@ -38,16 +38,40 @@ def home():
 @app.route('/stats/', defaults={'bounds': None})
 @app.route('/stats/<bounds>')
 def stats(bounds):
+
     cache_location = cache_folder + '/' + hashlib.md5('stats/' + str(bounds)).hexdigest() + '.json.cache'
     if os.path.isfile(cache_location):
         with open(cache_location) as r:
             data = jsonify(json.loads(r.read()))
             return data
     else:
+        if bounds:
+            try:
+                m = re.match(r'((-?\d+(?:\.\d+)?),){3}(-?\d+(\.\d+)?)$', bounds)
+                if not m:
+                    raise ValueError("Bounds should be longitudes/latitudes in west,south,east,north order")
+                w,s,e,n = map(float, bounds.split(','))
+                if w < -180 or w > 180 or e < -180 or e > 180:
+                    raise ValueError("Bounds should be longitudes/latitudes in west,south,east,north order")
+                elif s < -90 or s > 90 or n < -90 or n > 90 or s > n:
+                    raise ValueError("Bounds should be longitudes/latitudes in west,south,east,north order")
+
+                if e < w:
+                    bounds = MultiPolygon([box(w, s, 180, n), box(-180, s, e, n)])
+                else:
+                    bounds = MultiPolygon([box(w, s, e, n)])
+            except ValueError as e:
+                r = jsonify({"error": str(e)})
+                r.status_code = 400
+                return r
         dates = {}
         query = Transfer.query.distinct(Transfer.week_start)
         for date in query:
-            dates.update({str(date.return_date()) : Transfer.query.filter_by(week_start=date.return_date()).count()})
+            q = Transfer.query.filter_by(week_start=date.return_date())
+            if bounds:
+                dates.update({str(date.return_date()) : q.filter(Transfer.location.ST_Intersects(from_shape(bounds, 4326))).count()})
+            else:
+                dates.update({str(date.return_date()) : q.count()})
             
         with open(cache_location, 'w') as w:
             w.write(json.dumps(dates))
