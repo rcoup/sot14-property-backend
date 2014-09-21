@@ -17,6 +17,7 @@ during the week starting `YYYY-MM-DD` that are spatially located in the bounds
 
 specified by `west,south,east,north` (longitudes/latitudes in decimal degreees).
 
+
 ### `/stats/`
 
 Returns collection of weeks(that represented by starting date) and number of this week.
@@ -34,7 +35,7 @@ specified by `west,south,east,north` (longitudes/latitudes in decimal degreees).
 * `git clone` this repository.
 * `vagrant up` to build a dev environment
 * `vagrant ssh` to ssh
-* then `python scripts/populate_db.py` to populate db. In this case you will need an API key from data.linz.govt.nz
-	* Otherwise you can import dump with `pg_restore -c -d prop_xfer`.
+* then `python scripts/populate_db.py` to populate db. Required data.linz.govt.nz API key
+	* Otherwise import dump with `pg_restore -c -d prop_xfer dumps/dump.date.time.dump`.
 * then `python prop_xfer/app.py` to run the backend.
 * Head to http://localhost:5000/
