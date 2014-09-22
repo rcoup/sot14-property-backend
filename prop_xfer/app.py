@@ -37,7 +37,7 @@ def clear_cache():
 def home():
     return app.send_static_file("index.html")
 
-
+@app.route('/stats', defaults={'bounds': None})
 @app.route('/stats/', defaults={'bounds': None})
 @app.route('/stats/<bounds>')
 def stats(bounds):
@@ -85,6 +85,7 @@ def stats(bounds):
        
 
 @app.route('/week/<date>', defaults={'bounds': None})
+@app.route('/week/<date>/', defaults={'bounds': None})
 @app.route('/week/<date>/<bounds>')
 def week_data(date, bounds):
     """
