@@ -92,7 +92,7 @@ def week_data(date, bounds):
     Returns a GeoJSON FeatureCollection.
     """
     #Creates md5 link to cache file
-    cache_location = cache_folder + '/' + hashlib.md5(str(date) + '/' + str(bounds)).hexdigest() + '.json.cache'
+    cache_location = cache_folder + '/' + hashlib.md5('week/' + str(date) + '/' + str(bounds)).hexdigest() + '.json.cache'
     if os.path.isfile(cache_location) and not NO_CACHE:
         with open(cache_location) as r:
             data = jsonify(json.loads(r.read()))
