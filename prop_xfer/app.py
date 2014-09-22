@@ -12,6 +12,9 @@ app = Flask("prop_xfer", static_url_path='')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db.init_app(app)
 Compress(app)
+NO_CACHE = bool(int(os.environ.get("NO_CACHE", "0")))
+# print bool(os.environ.get("NO_CACHE", "0"))
+
 cache_folder = os.path.dirname(os.path.realpath(__file__)) + '/cache'
 
 #Creates cache directory
@@ -40,7 +43,7 @@ def home():
 def stats(bounds):
 
     cache_location = cache_folder + '/' + hashlib.md5('stats/' + str(bounds)).hexdigest() + '.json.cache'
-    if os.path.isfile(cache_location):
+    if os.path.isfile(cache_location) and not NO_CACHE:
         with open(cache_location) as r:
             data = jsonify(json.loads(r.read()))
             return data
@@ -72,9 +75,12 @@ def stats(bounds):
                 dates.update({str(date.return_date()) : q.filter(Transfer.location.ST_Intersects(from_shape(bounds, 4326))).count()})
             else:
                 dates.update({str(date.return_date()) : q.count()})
-            
-        with open(cache_location, 'w') as w:
-            w.write(json.dumps(dates))
+
+        if not NO_CACHE:
+            print "Cahing json: ", cache_location
+            with open(cache_location, 'w') as w:
+                w.write(json.dumps(dates))
+
         return jsonify(dates)
        
 
@@ -87,7 +93,7 @@ def week_data(date, bounds):
     """
     #Creates md5 link to cache file
     cache_location = cache_folder + '/' + hashlib.md5(str(date) + '/' + str(bounds)).hexdigest() + '.json.cache'
-    if os.path.isfile(cache_location):
+    if os.path.isfile(cache_location) and not NO_CACHE:
         with open(cache_location) as r:
             data = jsonify(json.loads(r.read()))
             return data
@@ -134,8 +140,10 @@ def week_data(date, bounds):
             features.append(transfer.as_geojson())
 
         # Caching data
-        with open(cache_location, 'w') as w:
-            w.write(json.dumps({"type": "FeatureCollection","features": features}))
+        if not NO_CACHE:
+            print "Cahing json: ", cache_location
+            with open(cache_location, 'w') as w:
+                w.write(json.dumps({"type": "FeatureCollection","features": features}))
 
         # Format the response as a GeoJSON FeatureCollection
         return jsonify({
