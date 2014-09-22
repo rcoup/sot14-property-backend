@@ -36,7 +36,7 @@ from prop_xfer.models import Transfer
 
 
 BASE_LAYER_URL = "https://data.linz.govt.nz/services/wfs/layer-805-changeset?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&typeNames=layer-805-changeset&viewparams=from:%s;to:%s&outputFormat=application/json&exceptions=application/json&srsName=EPSG:4326"
-START_DATE = os.environ.get("PX_START", "2013-05-17T00:00:00Z")  #Thursday
+START_DATE = os.environ.get("PX_START", "2013-06-08T00:00:00Z")  #Thursday
 DEBUG = int(os.environ.get("PX_DEBUG", "0"))
 
 def main(api_key):
@@ -54,31 +54,45 @@ def main(api_key):
 
         # nuke any existing data
         week_start = query_date_start + relativedelta(weekday=SA(-1))
-        print Transfer
         Transfer.query.filter(Transfer.week_start >= week_start).delete()
 
         while query_date_end < date_end:
             week_start = query_date_start + relativedelta(weekday=SA(-1))
             week_end = query_date_start + relativedelta(weekday=SA(+1))
-
+            data = {}
             if DEBUG:
                 print "Query", query_date_start, query_date_end, "week", week_start, week_end
 
             # Construct the LDS changeset url for the week
             url = BASE_LAYER_URL % (query_date_start.isoformat("T").replace("+00:00", "Z"), query_date_end.isoformat("T").replace("+00:00", "Z"))
-            print url
+            
             if DEBUG >= 2:
                 print url
+            else:
+                print 'Requesting data from ' + url[:25] + '...'
 
-            r = requests.get(url, headers=req_headers)
-            if DEBUG >= 4:
-                print r.status
-                print r.text
 
-            r.raise_for_status()
+            try:
+                r = requests.get(url, headers=req_headers)
+                
+                if DEBUG >= 4:
+                    print r.status
+                    print r.text
 
-            data = r.json()
-            print "%s -> %s: %d records" % (week_start.date(), week_end.date(), len(data['features']))
+                r.raise_for_status()
+
+            
+                data = r.json()
+            except MemoryError:
+                print "MemoryError error. Skipping..."
+                pass
+            except (KeyboardInterrupt, SystemExit):
+                raise 
+            except Exception as e:
+                print "Unexpected error:", e
+
+            # print data.keys()
+            print "Importing %s -> %s: %d records..." % (week_start.date(), week_end.date(), len(data['features']))
             if DEBUG >= 3:
                 print json.dumps(data, indent=2)
 
@@ -126,6 +140,7 @@ def main(api_key):
             # loop around again
             query_date_start += relativedelta(weeks=1)
             query_date_end = query_date_start + relativedelta(weeks=1)
+            print "Successfully imported %d records!\n" % len(data['features'])
             if DEBUG:
                 break
 
